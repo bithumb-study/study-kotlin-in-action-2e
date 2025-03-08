@@ -1,0 +1,636 @@
+#PART_2 코틀린 기초
+<br><br>
+<hr>
+
+##다루는 내용
+
+>- 함수, 변수, 클래스, 인엄, 프로퍼티를 선언하는 방법
+>- 코틀린 제어 구조
+>- 스마트 캐스트
+>- 예외 던지기와 예외 잡기
+<hr>  
+<br><br>
+  
+###2.1 기본 요소 : 함수와 변수
+###2.1.1 main()
+```kotlin
+fun main() {
+    println("Hello, world!")
+}
+
+```
+
+- 수많은 fun 을 만드는 재밌는 일이라고 한다.너무재밌겠다
+- 함수는 모든 코틀린 파일에 **최상위 수준**에 정의할 수 있으므로 **클래스 안에 함수를 넣어야 할 필요는 없다**고 한다.
+- main() 에는 인자값이 없어도 된다. (인자를 선언한다면 `args: Array<String>` )
+- 자바 표준 라이브러리들의 래퍼를 제공
+    - System.out.println -> println 
+    - Scanner -> readLine() : 사용자 입력
+    - Arrays.asList() -> array.toList() : 배열을 리스트로 변환
+    - StringBuilder or 반복문 -> joinToString() : 배열/리스트를 문자열로 변환 
+- 세미콜론 사용안해도됨. 안쓰는걸 권장. 좋다고하심
+   
+---   
+###2.1.2 파라미터와 반환값이 있는 함수 선언
+
+```kotlin
+fun max(a: Int, b:Int): Int {
+    return if (a>b) a else b
+}
+```
+- 2번째 fun
+- 타입과 이름을 콜론(:) 으로 구분
+- 코틀린에서 **if는 결과를 만든는 식** (문 이 아님)
+- 자바였다면 ``a>b ? a : b``
+- <span style="color:green">코틀린에서는 루프(for, while, do/while) 을 제외한 대부분의 제어 구조가 식 </span> 
+```kotlin
+val x = if (myBoolean) 3 else 5
+val direction = when (inputString) {
+    "u" -> UP
+    "d" -> DOWN
+    "else" -> UNKOWN
+}
+val number = try {
+    inputString.toInt()
+} catch (nfe: NumberFormatException) {
+    -1
+}
+
+```
+---
+   
+###2.1.3 식 본문을 사용해 함수를 더 간결하게 정의
+중괄호로 둘러싸인 함수 **블록 본문 함수** (block body function)
+```kotlin
+fun max(a: Int, b:Int): Int {
+    return if (a>b) a else b
+}
+```
+
+등호와 식으로 이루어진 **식 본문 함수** (expression body function)
+```kotlin
+fun max(a: Int, b:Int): Int = if (a>b) a else b
+```
+
+반환타입 생략
+```kotlin
+fun max(a: Int, b:Int) = if (a>b) a else b
+```
+
+더 간결해졌군요 (crap++crap)
+
+```
+Q . 근데 코틀린은 1장에서부터 정적 타입 지정 언어 라고 했는데 반환타입이 없어도 되나요
+A . 식 본문 함수는 무적입니다. 괜찮아요. 타입추론님의 가호를 받고 계세요. 컴파일러님이 손수 분석해주시고 추론해주십니다.
+    단, 식 본문 함수에만 생략 가능합니다.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+```
+
+타입 추론.. 강력한 것 같은데 좀 더 사용해봐야겠군요.
+
+---
+###2.1.4 데이터를 저장하기 위해 변수 선언
+```kotlin
+val question: String = "삶, 우주, 그리고 모든 것에대한 궁극적인 쩌는 질문"
+val answer: Int = 42
+
+의 타입을 생략하면
+
+val question = "삶, 우주, 그리고 모든 것에대한 국극적인 쩌는 질문"
+val answer = 42
+
+
+```
+<br>
+변수 선언 시 초기화를 하지 않고 나중에 값을 대입하고 싶을 때는 타입을 추론할 수 없기 때문에 반드시 명시 해야함
+
+```kotlin
+fun main() {
+    val answer: Int
+    answer = 42
+}
+```
+---
+
+###2.1.5 변수를 읽기 전용 변수나 재대입 가능 변수로 표시
+- val : 읽기 전용 참조 (자바의 final)
+- var : 재대입 가능한 참조
+
+**왠만하면 val 로 선언! 필요할 때만 var**
+
+함수 결과값으로 초기화 가능 
+```kotlin
+fun canPerformOperation(): Boolean {
+    return true
+}
+
+fun main() {
+    val result: String //초기화 없이 선언
+    if (canPerformOperation()) {
+        result = "Success" 
+    }
+    else {
+        result = "Can't perform operation"
+    }
+}
+```
+초기화 된 가변 리스트 원소 추가 가능
+```kotlin
+fun main() {
+    val languages = mutableListOf("Java")
+    languages.add("Kotlin")
+}
+```
+---
+###2.1.6 더 쉽게 문자열 형식 지정: 문자열 템플릿
+```kotlin
+fun main() {
+    val input = readln() //반갑. 근데 readLine()이 아니네용 readLine()은 String? 로 nullable이라고 합니다.
+    val name = if (input.isNotBlank()) input else "Kotlin"
+    plintln("Hello, $name!")
+}
+```
+
+- $ 는 문자열 내에서 변수참조 (참조하지 않으려면 백슬래쉬(\)를 앞에 붙이면됨)
+
+중괄호 통해 복잡한 식도 가능 
+```kotlin
+fun main() {
+    val name = readln()
+    if (name.isNotBlank()) {
+        println("Hello, ${name.length}-letter person!")
+    }
+}
+```
+---
+
+
+---
+
+##2.2 행동과 데이터 캡슐화: 클래스와 프로퍼티
+
+코틀린에서 class
+```kotlin
+class Person(val name: String, var isStudent: Boolean)
+```
+
+- 코드없이 데이터만 저장하는 클래스에 대한 간결한 문법 (like record)         
+- public이 기본 가시성 지정자.(java 접근제어자와 유사)
+- public 은 생략 가능
+
+###2.2.1 클래스와 데이터를 연관시키고, 접근 가능하게 만들기: 프로퍼티
+
+- 프로퍼티 : 접근제어자 + 필드 (getter, setter)
+
+코틀린에서 Person클래스 사용
+- val
+- new 키워드 사용 안함
+- get 사용안하고 바로 필드명
+- =를 통해 값을 주입하면 자동으로 setter호출
+```kotlin
+fun main() {
+    val person = Person("Bob", true) //true로 생성
+    println(person.name)
+    println(person.isStudent) //true
+  
+    person.isStudent = false //false로 변경
+    println(person.isStudent) //false
+}
+```
+
+###2.2.2 프로퍼티 값을 저장하지 않고 계산: 커스텀 접근자
+```kotlin
+//커스텀 접근자 get()
+class Rectangle2(val height: Int, val width:Int) {
+  val isSquare: Boolean
+    get() {
+      return height == width
+    }
+}
+
+//타입추론 + 식 본문 구문 으로 동일하게 구현 가능
+class Rectangle(val height: Int, val width:Int) {
+    val isSquare = height == width
+}
+
+fun main() {
+    val rectangle = Rectangle(10, 10)
+    println(rectangle.isSquare) //true
+
+    val rectangle2 = Rectangle2(11, 10)
+    println(rectangle2.isSquare) //false
+}
+```
+
+###2.2.3 코틀린 소스코드 구조: 디렉터리와 패키지
+-` 자바와 달리 디렉토리구조와 패키지 구조가 동일할 필요는 없지만 자바의 방식을 따르는 것이 중요하다고 한다.`
+<br>`자바클래스를 코틀린 클래스로 마이그레이션 시 문제가 발생할수 있다. 그래도 여러 클래스를 한 파일에 넣는 것은 주저하지 말자.`
+```kotlin
+package geometry.shapes
+
+class Rectangle(val height: Int, val width: Int) {
+    val isSquare: Boolean
+        get() = height == width
+}
+
+fun createUnitSquare(): Rectangle {
+    return Rectangle(1,1)
+}
+```
+```kotlin
+package geometry.example
+
+import geometry.shapes.Rectangle
+import geometry.shapes.createUnitSquare
+
+fun main() {
+    println(Rectangle(3, 4).isSquare)
+    //false
+    println(createUnitSquare().isSquare)
+    //true}
+}
+```
+
+##2.3 선택 표현과 처리: 이넘과 when
+- 우리의 사랑 이넘
+- 왠지 애정할 것 같은 when
+- enum 은 소프트 키워드로 변수명으로도 사용 가능
+
+###2.3.1 이넘클래스와 이넘 상수 정의
+```kotlin
+package ch02.colors
+
+enum class Color( //자바보다 김 
+    val r: Int,
+    val g: Int,
+    val b: Int
+) {
+    RED(255, 0, 0),
+    ORANGE(255,165,0),
+    YELLOW(255, 255, 0),
+    GREEN(0, 255, 0),
+    BLUE(0, 0, 255),
+    INDIGO(75, 0, 130),
+    VIOLET(238, 130, 238);
+    
+    fun rgb() = (r * 256 + g) * 256 + b
+    fun printColor() = println("$this is ${rgb()}") //책의 오타 조심 fun인 경우 ${함수명()} 
+}
+
+fun main() {
+    println(Color.BLUE.rgb())
+    //255
+    
+    Color.GREEN.printColor()
+    //GREEN is 65280
+}
+```
+
+###2.3.2 when으로 이넘 클래스 다루기
+```kotlin
+package ch02.colors
+
+fun getMnemonic(color: Color) =
+  when (color) {
+    Color.RED -> "Richard"
+    Color.ORANGE -> "Of"
+    Color.YELLOW -> "York"
+    Color.GREEN -> "Gave"
+    Color.BLUE -> "Battle"
+    Color.INDIGO -> "In"
+    Color.VIOLET -> "Vain" //모든 케이스 정의 or else 
+  }
+
+fun main() {
+  println(getMnemonic(Color.BLUE))
+  //Battle
+}
+```
+
+하나의 when 분기 안에 여러 값 사용
+```kotlin
+fun measureColor() = Color.ORANGE
+
+fun getWarmthFromSensor():String {
+  val color = measureColor()
+  return when (color) {
+    Color.RED, Color.ORANGE, Color.YELLOW -> "warm(red=${color.r}"
+    Color.GREEN -> "neutral (green = ${color.g})"
+    Color.BLUE, Color.INDIGO, Color.VIOLET -> "cold (blue = ${color.b}"
+  }
+}
+
+fun main() {
+    println(getWarmthFromSensor())
+    //warm (red = 255)
+}
+```
+
+이넘 상수 값을 임포트해서 이넘 클래스 수식자 없이 이넘 사용하기
+```kotlin
+import ch02.colors.Color.* 
+//자바는 static 있어야 하는데 , 이는 kotlin 컴파일러가 enum 필드들을 내부적으로 static final처리하여 static 없이 사용가능
+
+fun measureColor() = ORANGE
+
+fun getWarmthFromSensor():String {
+  val color = measureColor()
+  return when (color) {
+    RED, ORANGE, YELLOW -> "warm(red=${color.r}"
+    GREEN -> "neutral (green = ${color.g})"
+    BLUE, INDIGO, VIOLET -> "cold (blue = ${color.b}"
+  }
+}
+```
+
+###2.3.3 when식의 대상을 변수에 캡쳐
+```kotlin
+import ch02.colors.Color.*
+
+fun measureColor() = ORANGE
+
+fun getWarmthFromSensor():String {
+  return when (color = measureColor()) {
+    RED, ORANGE, YELLOW -> "warm(red=${color.r}"
+    GREEN -> "neutral (green = ${color.g})"
+    BLUE, INDIGO, VIOLET -> "cold (blue = ${color.b}"
+  }
+}
+```
+
+###2.3.4 when의 분기 조건에 임의의 객체 사용
+```kotlin
+import ch02.colors.Color.*
+
+fun mix(c1: Color, c2:Color) = 
+    when (setOf(c1, c2)) {
+        setOf(RED, YELLOW) -> ORANGE
+        setOf(YELLOW, BLUE) -> GREEN
+        setOf(BLUE, VIOLET) -> INDIGO
+        else -> throw Exception("Dirty color")
+    }
+
+fun main() {
+    println(mix(BLUE, YELLOW))
+    //GREEN
+}
+```
+
+###2.3.5 인자 없는 when 사용
+```kotlin
+import ch02.colors.Color.*
+
+fun mixOpimized(c1: Color, c2: Color) =
+    when {
+      (c1 == RED && c2 == YELLOW) ||
+      (c2 == RED && c1 == YELLOW) -> ORANGE
+
+      (c1 == YELLOW && c2 == BLUE) ||
+      (c2 == BLUE && c1 == YELLOW) -> GREEN
+      
+      (c1 == BLUE && c2 == VIOLET) ||
+      (c2 == VIOLET && c1 == BLUE) -> INDIGO
+
+      else -> throw Exception("Dirty color")
+    }
+fun main() {
+    println(mixOptimized(BLUE, YELLOW))
+  //GREEN
+}
+```
+
+###2.3.6 스마트 캐스트: 타입 검사와 타입 캐스트 조합
+- 식을 트리구조로 저장
+- 마커 인터페이스(marker interface) : 여러 타입의 식 객체를 아우르는 공통 타입
+- is -> 자바의 instanceof
+- is 로 검사 후 타입이 확정되면 스마트 캐스팅으로 별도 캐스팅 없이 해당 타입으로 구현가능.(자바는 캐스팅 지옥이었던...)
+
+```kotlin
+interface Expr
+class Num(val value: Int) : Expr
+class Sum(val left: Expr, val right: Expr) : Expr
+
+fun eval(e: Expr): Int {
+    if (e is Num) {
+        val n = e as Num
+        return n.value
+    }
+
+    if (e is Sum) {
+        return eval(e.right) + eval(e.left) //타입검사 후 별도 캐스팅 없이  e의 right, left 호출가능
+    }
+    throw IllegalArgumentException("Unkown expression")
+}
+
+fun main() {
+    println(eval(Sum(Sum(Num(1), Num(2)), Num(4))))
+    //7
+}
+
+```
+
+###2.3.7 리팩터링: if를 when으로 변경
+```kotlin
+fun eval(e: Expr): Int = 
+    if (e is Num) e.value
+    else if (e is Sum) eval(e.right) + eval(e.left)
+    else throw IllegalArgumentException("아 손")
+```
+When으로 가보자
+
+```kotlin
+fun eval(e: Expr): Int =
+    when (e) {
+        is Num -> e.value
+        is Sum -> eval(e.right) + eval(e.left)
+        else -> throw IllegalArgumentException("아 눈")
+    }
+```
+
+###2.3.8 if와 when의 분기에서 블록 사용
+```kotlin
+fun evalWithLogging(e: Expr): Int =
+    when(e) {
+        is Num -> {
+            println("num: ${e.value}")
+            e.value
+        }
+        is Sum -> {
+            val left = evalWithLogging(e.left)
+            val right = evalWithLogging(e.right)
+            println("sum : $left + $right")
+            left + right
+        }
+        else -> throw IllegalArgumentException("굳")
+    }
+
+fun main() {
+    println(evalWithLogging(Sum(Sum(Num(1),Num(2)),Num(4))))
+    // num: 1
+    // num: 2
+    // sum: 1+2
+    // num: 4
+    // sum: 3+4
+    // 7
+}
+```
+---
+##2.4 대상 이터레이션: while과 for 루프
+
+###2.4.1 조건이 참인 동안 코드 반복: while 루프
+- @ 를 이용해 레이블 지정
+
+```kotlin
+outer@ while(outerCondition) {
+    while (innerCondition) {
+        if (shouldExitInner) break
+        if(shouldSkipInner) continue
+        if(shouldExit) break@outer   //지정한 레이블을 빠져나감
+        if(shoudSkip) continue@outer
+    }
+}
+```
+
+###2.4.2 수에 대해 이터레이션: 범위와 순열
+- 순열: 어떤 범위를 일정한 순서로 이터레이션
+- val oneToten = 1..10
+- 역방향 downTo
+- 절대값 step 2
+
+```kotlin
+fun fizzBuzz(i: Int) = when {
+    i % 15 == 0 -> "피즈버즈"
+    i % 3 == 0 -> "피즈"
+    i % 5 == 0 -> "버즈"
+    else ->"$i" 
+}
+
+fun main() {
+    for (i in 1..100) {
+        print(fizzBuzz(i))
+    }
+    // 1 2 피즈 4 버즈 피즈 7 ...
+  
+    for (i in 100 downTo 1 step 2) {
+        print(fizzBuzz(i))
+    }
+  //버즈 98 피즈 94 92 피즈버즈 88
+}
+```
+
+###2.4.3 맵에 대해 이터레이션
+```kotlin
+fun main() {
+  val collection = listOf("red","green","blue")
+  for(color in collection) {
+      print("$color ")
+  }
+  //red green blue
+}
+```
+맵을 초기화하고 이터레이션하기
+```kotlin
+fun main() {
+    val binaryReps = mutableMapOf<Char, String>()
+    for (char in 'A'..'F') {
+        val binary = char.code.toString(radix = 2)
+        binaryReps[char] = binary //java 표현으로 binaryReps.put(c, binary)
+    }
+  
+    for ((letter, binary) in binaryReps) {
+        println("$letter = $binary")
+      // A = 1000001 D = 1000100 ...
+    }
+}
+```
+withIndex 함수
+```kotlin
+fun main() {
+    val list = listOf("10","11","1001")
+  for ((index,element) in list.withIndex()) {
+      println("$index: $element")
+  }
+  // 0: 10
+  // 1: 11
+  // 2: 1001
+}
+```
+
+###2.4.4 in으로 컬렉션이나 범위의 원소 검사
+in을 사용해 값이 범위에 속하는지 검사
+```kotlin
+fun isLetter(c: Char) = c in 'a'..'z' || c in 'A'..'Z'
+fun isNotDigit(c: Char) = c !in '0'..'9'
+
+fun main() {
+    println(isLetter('q'))
+    //true
+    println(isNotDigit('x'))
+    //true
+}
+```
+---
+---
+##2.5 코틀린에서 예외 던지고 잡아내기
+- 예외는 자바와 비슷
+- 자봐와 마찬가지로 try, catch, fially 절을 함께 사용
+```kotlin
+import java.io.BufferedReader
+import java.io.StringReader
+
+fun readNumber(reader: BufferedReader) : Int? {
+    try {
+        val line = reader.readLine()
+        return Integer.parseInt(line)
+    }
+    catch(e: NumberFormatException) {
+        return null
+    }
+    finally {
+        reader.close()
+    }
+}
+
+fun main() {
+    var reader = BufferedReader(StringReader("239"))
+    println(readNumber(reader))
+}
+```
+
+###2.5.2 try를 식으로 사용
+```kotlin
+fun readNumber(reader: BufferedReader) {
+    val number = try {
+        Integer.parseInt(reader.readLine())
+    } catch (e: NumberFormatException) {
+        return
+    }
+  
+    println(number)
+}
+
+fun main() {
+    val reader = BufferedReader(StaringReader("not a number"))
+    readNumber(reader) //catch 로 빠져 아무것도 출력 안함
+}
+```
+
+```kotlin
+fun readNumber(reader: BufferedReader) {
+    val number = try {
+        Integer.parseInt(reader.readLine())
+    } catch (e: NumberFormatException) {
+        null
+    }
+  
+    println(number)
+}
+
+fun main() {
+    val reader = BufferedReader(StaringReader("not a number"))
+    readNumber(reader)
+    //null 을 출력
+}
+```
+
+
+인스턴스 생성 시 new 키워드 없어도 됨, , 스마트캐스트, when , in, !in , withIndex, map을 더 간결하게 초기화하고 list를 index와 element를 함께 조회, 
